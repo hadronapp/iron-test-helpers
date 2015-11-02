@@ -55,7 +55,20 @@
       relatedTarget: null
     }, options || {});
     var e;
-    var mousetype = type === 'tap' ? 'click' : 'mouse' + type;
+    var mousetype;
+
+    switch(type) {
+      case 'tap':
+      case 'click':
+        mousetype = 'click';
+        break;
+      case 'dblclick':
+        mousetype = 'dblclick';
+        break;
+      default:
+        mousetype = 'mouse' + type;
+    }
+
     if (HAS_NEW_MOUSE) {
       e = new MouseEvent(mousetype, props);
     } else {
@@ -85,6 +98,11 @@
   function hover(node, xy, options) {
     xy = xy || middleOfNode(node);
     makeEvent('hover', xy, node, options);
+  }
+
+  function dblclick(node, xy, options) {
+    xy = xy || middleOfNode(node);
+    makeEvent('dblclick', xy, node, options);
   }
 
   function move(node, fromXY, toXY, steps, options) {
@@ -202,6 +220,7 @@
     down: down,
     up: up,
     hover: hover,
+    dblclick: dblclick,
     downAndUp: downAndUp,
     tap: tap,
     track: track,
