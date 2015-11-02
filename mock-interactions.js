@@ -82,6 +82,11 @@
     makeEvent('down', xy, node, options);
   }
 
+  function hover(node, xy, options) {
+    xy = xy || middleOfNode(node);
+    makeEvent('hover', xy, node, options);
+  }
+
   function move(node, fromXY, toXY, steps, options) {
     steps = steps || 5;
     var dx = Math.round((fromXY.x - toXY.x) / steps);
@@ -196,6 +201,7 @@
     blur: blur,
     down: down,
     up: up,
+    hover: hover,
     downAndUp: downAndUp,
     tap: tap,
     track: track,
