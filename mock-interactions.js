@@ -35,15 +35,25 @@
     };
   }
 
-  function makeEvent(type, xy, node) {
-    var props = {
+  function makeEvent(type, xy, node, options) {
+    var props = Object.assign({
       bubbles: true,
       cancelable: true,
       clientX: xy.x,
       clientY: xy.y,
       // Make this a primary input.
-      buttons: 1 // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
-    };
+      buttons: 1, // http://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+      view: null,
+      detail: null,
+      screenX: 0,
+      screenY: 0,
+      ctrlKey: false,
+      altKey: false,
+      shiftKey: false,
+      metaKey: false,
+      button: 0,
+      relatedTarget: null
+    }, options || {});
     var e;
     var mousetype = type === 'tap' ? 'click' : 'mouse' + type;
     if (HAS_NEW_MOUSE) {
@@ -52,27 +62,27 @@
       e = document.createEvent('MouseEvent');
       e.initMouseEvent(
         mousetype, props.bubbles, props.cancelable,
-        null, /* view */
-        null, /* detail */
-        0,    /* screenX */
-        0,    /* screenY */
+        props.view,
+        props.detail,
+        props.screenX,
+        props.screenY,
         props.clientX, props.clientY,
-        false, /*ctrlKey */
-        false, /*altKey */
-        false, /*shiftKey */
-        false, /*metaKey */
-        0,     /*button */
-        null   /*relatedTarget*/);
+        props.ctrlKey,
+        props.altKey,
+        props.shiftKey,
+        props.metaKey,
+        props.button,
+        props.relatedTarget);
     }
     node.dispatchEvent(e);
   }
 
-  function down(node, xy) {
+  function down(node, xy, options) {
     xy = xy || middleOfNode(node);
-    makeEvent('down', xy, node);
+    makeEvent('down', xy, node, options);
   }
 
-  function move(node, fromXY, toXY, steps) {
+  function move(node, fromXY, toXY, steps, options) {
     steps = steps || 5;
     var dx = Math.round((fromXY.x - toXY.x) / steps);
     var dy = Math.round((fromXY.y - toXY.y) / steps);
@@ -81,29 +91,29 @@
       y: fromXY.y
     };
     for (var i = steps; i > 0; i--) {
-      makeEvent('move', xy, node);
+      makeEvent('move', xy, node, options);
       xy.x += dx;
       xy.y += dy;
     }
     makeEvent('move', {
       x: toXY.x,
       y: toXY.y
-    }, node);
+    }, node, options);
   }
 
-  function up(node, xy) {
+  function up(node, xy, options) {
     xy = xy || middleOfNode(node);
-    makeEvent('up', xy, node);
+    makeEvent('up', xy, node, options);
   }
 
-  function tap(node) {
+  function tap(node, options) {
     // Respect nodes that are disabled in the UI.
     if (window.getComputedStyle(node)['pointer-events'] === 'none')
       return;
     var xy = middleOfNode(node);
     down(node, xy);
     up(node, xy);
-    makeEvent('tap', xy, node);
+    makeEvent('tap', xy, node, options);
   }
 
   function focus(target) {
